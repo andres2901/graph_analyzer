@@ -79,11 +79,7 @@ class GraphObject:
         self.degree = {node:deg for (node, deg) in self.graph.degree()}
         self.betweenness = nx.betweenness_centrality(self.graph, normalized = False)
         self.closeness = nx.closeness_centrality(self.graph)
-        self.node_distributions =  pd.DataFrame.from_records([self.degree, self.betweenness,self.closeness], index = ["Degree", "Betweeness", "Closeness"]).transpose()       
-
-
-        print(f"Built a {self.graph_type} graph built with {self.node_number} nodes and "
-              f"{self.edge_number} edges")      
+        self.node_distributions =  pd.DataFrame.from_records([self.degree, self.betweenness,self.closeness], index = ["Degree", "Betweeness", "Closeness"]).transpose()           
       
     def assortativity(self, attribute: str) -> float:
         """Identify assortativity of the value
@@ -108,9 +104,9 @@ class GraphObject:
         """Return basic statistics of distributions"""
         
         if self.graph_type == W:
-            return self.graph_type, self.node_distributions, self.node_distributions.describe().apply(lambda s: s.apply('{0:.4f}'.format)), self.weight.describe().apply(lambda x: format(x, '.4f'))
+            return self.node_distributions, self.node_distributions.describe().apply(lambda s: s.apply('{0:.4f}'.format)), self.weight.describe().apply(lambda x: format(x, '.4f'))
         elif self.graph_type == UW:
-            return self.graph_type, self.node_distributions, self.node_distributions.describe()
+            return self.node_distributions, self.node_distributions.describe()
         
     def nodes_dict(self) -> dict[dict]:
         """Return the node dictionary"""
@@ -191,17 +187,31 @@ class SubGraphObject():
             self.subgraph_metrics.update({key : metrics})
             
             distributions = dict()
-            metrics.update({'Degree' : sub_graph.degree()})
-            metrics.update({'Betweenness' : nx.betweenness_centrality(sub_graph, normalized = False)})
-            metrics.update({'Closeness' : nx.closeness_centrality(sub_graph)})
+            degree = sub_graph.degree()
+            betweenness = nx.betweenness_centrality(sub_graph, normalized = False)
+            closeness = nx.closeness_centrality(sub_graph)
+            node_distributions =  pd.DataFrame.from_records([degree, betweenness,closeness], index = ["Degree", "Betweeness", "Closeness"]).transpose() 
+            distributions.update({'nodes' : node_distributions})
             if self.graph_type == W:
-                metrics.update({'Weigth' : nx.get_edge_attributes(sub_graph,'Weight')})
+                distributions.update({'Weight' : nx.to_pandas_edgelist(sub_graph).rename(columns = { 'source' : 'Source', 'target' : 'Target', 'weight' : 'Weight'})})
+
+            self.subgraph_distributions.update({key : distributions})
             
 
     def subgraphs(self) -> dict[Graph]:
         """Return dictionary of subgraphs"""
         
         return self.sub_graphs
+
+    def metrics(self) -> dict[dict]:
+        """Return dictionary of metrics"""
+
+        return self.subgraph_metrics
+
+    def distributions(self) -> list[objects]:
+        """Return dictionary of distributions"""
+
+        return self.subgraph_distributions
         
         
         

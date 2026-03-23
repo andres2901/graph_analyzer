@@ -13,6 +13,7 @@ import os
 import argparse
 import numpy as np
 import pandas as pd
+import networkx as nx
 from graph_module import GraphObject
 from graph_module import SubGraphObject
 
@@ -105,6 +106,8 @@ def load_graph(edges_file: str,
         print(f"{difference}")
         sys.exit(1)
 
+    print(f"Input is a {graph_type} graph")
+
     return edges_df, nodes_df, graph_type
 
 
@@ -139,6 +142,8 @@ def process_graph(edges_file: str,
         
     main_stats = os.path.join(output_dir, "Main_graph_stats.txt")
     graph_stats = input_graph.stats()
+
+    print(f"Writing results in {output_dir} directory")
     
     try:
         with open(main_stats, 'w') as f:
@@ -157,31 +162,73 @@ def process_graph(edges_file: str,
     
     distributions = input_graph.distributions_statistic()
     
-    if distributions[0] == W:
-        distributions[1].to_csv(os.path.join(output_dir, "Node_characteristics.txt"),
+    if graph_type == W:
+        distributions[0].to_csv(os.path.join(output_dir, "Node_characteristics.txt"),
+                                sep='\t', index_label = "NodeID")
+        distributions[1].to_csv(os.path.join(output_dir, "Node_stats.txt"),
                                 sep='\t')
-        distributions[2].to_csv(os.path.join(output_dir, "Node_stats.txt"),
+        distributions[2].to_csv(os.path.join(output_dir, "Edge_stats.txt"),
                                 sep='\t')
-        distributions[3].to_csv(os.path.join(output_dir, "Edge_stats.txt"),
+    elif graph_type == UW:
+        distributions[0].to_csv(os.path.join(output_dir, "Node_characteristics.txt"),
                                 sep='\t')
-    elif distributions[0] == UW:
-        distributions[1].to_csv(os.path.join(output_dir, "Node_characteristics.txt"),
-                                sep='\t')
-        distributions[2].to_csv(os.path.join(output_dir, "Node_stats.txt"),
-                                sep='\t')
+        distributions[1].to_csv(os.path.join(output_dir, "Node_stats.txt"),
+                                sep='\t', index_label = "NodeID")
     
     subgraph = SubGraphObject(input_graph, attribute)
     general_sub = subgraph.subgraphs()
-    subgraph.calculate_metrics
+    subgraph.calculate_metrics()
+    subgraph_metric = subgraph.metrics()
+    subgraph_distribution = subgraph.distributions()
     
     subgraph_dir = os.path.join(output_dir, "SubGraphs")
     if not os.path.exists(subgraph_dir):
             os.makedirs(subgraph_dir)
     
     for key in general_sub:
+        graph = general_sub.get(key)
+        metrics = subgraph_metric.get(key)
+        distributions = subgraph_distribution.get(key)
         info_dir = os.path.join(subgraph_dir, key)
+
         if not os.path.exists(info_dir):
             os.makedirs(info_dir)
+
+        edge_file = os.path.join(info_dir, f"{key}_edges_file.txt")
+
+        nx.to_pandas_edgelist(graph).rename(columns = { 'source' : 'Source', 'target' : 'Target', 'weight' : 'Weight'}).to_csv(edge_file, sep='\t', index = False)
+
+        node_file = os.path.join(info_dir, f"{key}_nodes_file.txt")
+
+        pd.DataFrame.from_dict(dict(graph.nodes(data=True)), orient='index').to_csv(node_file, sep='\t', index_label = "NodeID")
+
+        filename = os.path.join(info_dir, "Main_subgraph_stats.txt")
+        try:
+            with open(filename, 'w') as f:
+                f.write(f"Statistics of subgraph '{key}':\n")
+                f.write(f"  Graph type: {graph_stats[0]}\n")
+                f.write(f"  Number of nodes: {metrics.get('node_number')}\n")
+                f.write(f"  Number of edges: {metrics.get('edge_number')}\n")
+                f.write(f"  Density: {metrics.get('density')}\n")
+                f.write(f"  Number of connected components: {metrics.get('connect_components')}\n")
+                f.write(f"  Transitivity: {metrics.get('transitivity')}\n")
+        except PermissionError:
+            sys.exit(f"Error: No write permission for '{filename}'.")
+        except OSError as e:
+            sys.exit(f"Error writing file '{filename}': {e}")
+
+        if graph_type == W:
+            distributions.get('nodes').to_csv(os.path.join(info_dir, "Node_characteristics.txt"),
+                                sep='\t', index_label = "NodeID")
+            distributions.get('nodes').describe().to_csv(os.path.join(info_dir, "Node_stats.txt"),
+                                sep='\t')
+            distributions.get('Weight')['Weight'].describe().to_csv(os.path.join(info_dir, "Edge_stats.txt"),
+                                sep='\t')
+        elif graph_type == UW:
+            distributions.get('nodes').to_csv(os.path.join(info_dir, "Node_characteristics.txt"),
+                                sep='\t')
+            distributions.get('nodes').describe().to_csv(os.path.join(info_dir, "Node_stats.txt"),
+                                sep='\t')
 
     
 def main() -> None:
