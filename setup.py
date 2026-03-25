@@ -5,11 +5,12 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-here = path.abspath(path.dirname(__file__))
+here = path.abspath(path.	dirname(__file__))
+exec(open("graph_structure/version.py").read())
 
 setup(
-    name="graph_structure",
-    version="0.0.1", 
+    name="graph-structure",
+    version=__version__, 
     description="Calculate structural properties of graphs and subgraphs based on node attributes.",
     long_description=open(path.join(here, "README.md"), encoding="utf-8").read(),
     long_description_content_type="text/markdown",

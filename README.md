@@ -16,7 +16,6 @@ Package focused on reading and analyzing graphs structures. It will perform a st
 - Assortativity of the selected attribute
 
 For the distributions, it also include descriptive statistics that summarize the central tendency, dispersion and shape of each property.
-All generated statistics and processed data will be organized and saved into a dedicated directory for easy post-processing and visualization.
 
 ### Installation
 

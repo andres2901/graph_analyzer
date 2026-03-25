@@ -15,11 +15,13 @@ import pandas as pd
 import networkx as nx
 from graph_structure.graph_module import GraphObject
 from graph_structure.graph_module import SubGraphObject
+from graph_structure.version import __version__
 
 # CONSTANTS
 
 UW = "Unweighted"
 W = "Weighted"
+#exec(open("version.py").read())
 
 
 def load_graph(edges_file: str, 
@@ -234,7 +236,8 @@ def process_graph(edges_file: str,
     
 def main() -> None:
     """Parse command-line arguments and launch the graph analyzer pipeline."""
-    parser = argparse.ArgumentParser(description="Structural properties analysis of graph and attribute-base subgraphs")
+    parser = argparse.ArgumentParser(prog = f"graph_structure", \
+        description=f"Structural properties analysis of graph and attribute-base subgraphs v{__version__}")
     parser.add_argument('-e', '--edges-file', type=str, required=True, help="Input TSV file with edges.")
     parser.add_argument('-n', '--node-file', type=str, required=True, help="Input TSV file with node attributes.")
     parser.add_argument('-a', '--attribute', type=str, required=True, help="Name of the attribute for subgraphs")
