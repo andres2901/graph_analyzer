@@ -1,21 +1,51 @@
-# Graph Analyzer
+# Graph Structure
 
-Project for 'Advanced Scientific Programming in Python' course. The project will focused on reading and analyzing graphs. It will perform a structural analysis on an undirected graph and their attribute-defined subgraphs. By providing an edge list and node attributes, it will automate the extraction of the following metrics of the graph and attribute-based subgraph:
+Package focused on reading and analyzing graphs structures. It will perform a structural analysis on an undirected graph and their attribute-defined subgraphs. By providing an edge list and node attributes, it will automate the extraction of the following metrics of the graph and attribute-based subgraph:
 
 - Number of nodes.
 - Number of edges.
 - Graph density.
 - Number of connected components. 
 - Transitivity.
-- Node Degree Distribution.
-- Betweenness centrality distribution.
-- Closeness centrality distribution
-- Edges weight distribution (if weighted graph)
+- Node-level characteristics:
+  - Node Degree Distribution.
+  - Betweenness centrality distribution.
+  - Closeness centrality distribution
+- Edge-level characteristics (if weighted graph):
+  - Edges weight distribution 
 - Assortativity of the selected attribute
 
+For the distributions, it also include descriptive statistics that summarize the central tendency, dispersion and shape of each property.
 All generated statistics and processed data will be organized and saved into a dedicated directory for easy post-processing and visualization.
 
-## Input example
+### Installation
+
+`pip install graph-structure`  
+
+Upgrade to a newer version using:  
+`pip install graph-structure --upgrade`
+
+### Usage
+
+```
+usage: graph_structure [-h] -e EDGES_FILE -n NODE_FILE -a ATTRIBUTE [-o OUTPUT_DIR] 
+
+Structural properties analysis of graph and attribute-base subgraphs
+
+options:
+  -h, --help            show this help message and exit
+  -e, --edges-file EDGES_FILE
+                        Input TSV file with edges.
+  -n, --node-file NODE_FILE
+                        Input TSV file with node attributes.
+  -a, --attribute ATTRIBUTE
+                        Name of the attribute for subgraphs
+  -o, --output-dir OUTPUT_DIR
+                        Directory for output files.
+
+```
+
+## Input format
 
 The input formats are the same as those accepted for [cytoscape](https://cytoscape.org/) to import a network and attributes from table.
 

@@ -187,7 +187,7 @@ class SubGraphObject():
             self.subgraph_metrics.update({key : metrics})
             
             distributions = dict()
-            degree = sub_graph.degree()
+            degree = {node:deg for (node, deg) in sub_graph.degree()}
             betweenness = nx.betweenness_centrality(sub_graph, normalized = False)
             closeness = nx.closeness_centrality(sub_graph)
             node_distributions =  pd.DataFrame.from_records([degree, betweenness,closeness], index = ["Degree", "Betweeness", "Closeness"]).transpose() 
@@ -196,7 +196,7 @@ class SubGraphObject():
                 distributions.update({'Weight' : nx.to_pandas_edgelist(sub_graph).rename(columns = { 'source' : 'Source', 'target' : 'Target', 'weight' : 'Weight'})})
 
             self.subgraph_distributions.update({key : distributions})
-            
+
 
     def subgraphs(self) -> dict[Graph]:
         """Return dictionary of subgraphs"""
@@ -212,8 +212,4 @@ class SubGraphObject():
         """Return dictionary of distributions"""
 
         return self.subgraph_distributions
-        
-        
-        
 
-        

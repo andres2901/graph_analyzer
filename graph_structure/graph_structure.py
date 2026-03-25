@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Graph Analyzer tool
+Graph Structural Analyzing tool
 
 This tool perform a structural analysis of an undirected graph
 and their attribute-defined subgraphs. returning multiple metrics
-related to composition, connectivity, assortativity, distribution
-and centrality.
+related to composition, connectivity, assortativity, and centrality.
 """
 
 import sys
@@ -14,8 +13,8 @@ import argparse
 import numpy as np
 import pandas as pd
 import networkx as nx
-from graph_module import GraphObject
-from graph_module import SubGraphObject
+from graph_structure.graph_module import GraphObject
+from graph_structure.graph_module import SubGraphObject
 
 # CONSTANTS
 
@@ -167,6 +166,7 @@ def process_graph(edges_file: str,
                                 sep='\t', index_label = "NodeID")
         distributions[1].to_csv(os.path.join(output_dir, "Node_stats.txt"),
                                 sep='\t')
+ 
         distributions[2].to_csv(os.path.join(output_dir, "Edge_stats.txt"),
                                 sep='\t')
     elif graph_type == UW:
@@ -222,8 +222,9 @@ def process_graph(edges_file: str,
                                 sep='\t', index_label = "NodeID")
             distributions.get('nodes').describe().to_csv(os.path.join(info_dir, "Node_stats.txt"),
                                 sep='\t')
-            distributions.get('Weight')['Weight'].describe().to_csv(os.path.join(info_dir, "Edge_stats.txt"),
-                                sep='\t')
+            if metrics.get('edge_number') > 0:
+                distributions.get('Weight')['Weight'].describe().to_csv(os.path.join(info_dir, "Edge_stats.txt"),
+                                    sep='\t')
         elif graph_type == UW:
             distributions.get('nodes').to_csv(os.path.join(info_dir, "Node_characteristics.txt"),
                                 sep='\t')
@@ -233,11 +234,11 @@ def process_graph(edges_file: str,
     
 def main() -> None:
     """Parse command-line arguments and launch the graph analyzer pipeline."""
-    parser = argparse.ArgumentParser(description="Structural analysis of graph and attribute-base subgraphs")
+    parser = argparse.ArgumentParser(description="Structural properties analysis of graph and attribute-base subgraphs")
     parser.add_argument('-e', '--edges-file', type=str, required=True, help="Input TSV file with edges.")
     parser.add_argument('-n', '--node-file', type=str, required=True, help="Input TSV file with node attributes.")
+    parser.add_argument('-a', '--attribute', type=str, required=True, help="Name of the attribute for subgraphs")
     parser.add_argument('-o', '--output-dir', type=str, default='./', help="Directory for output files.")
-    parser.add_argument('-a', '--attribute', type=str, default=1, help="Name of the attribute for subgraphs")
     
     args = parser.parse_args()
     process_graph(args.edges_file, args.node_file, args.attribute, args.output_dir)
