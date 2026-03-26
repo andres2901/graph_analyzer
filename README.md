@@ -61,7 +61,6 @@ node03	node04	67.65
 node03	node06	95.0
 node05	node09	94.12
 node07  node08  100
-node10
 ```
 
 ### 2. Node Attribute File
@@ -77,5 +76,4 @@ node06  ID04  Sweden
 node07  ID05  Spain
 node08  ID05  Spain
 node09  ID06  Denmark
-node10  ID07  Japan
 ```
